@@ -197,6 +197,3 @@ The UART and top wrapper module exists to allow us to send data directly to the 
 
 Work in progress. This is primarily a learning project, with the design and documentation developed together.
 
-## License
-
-TBD
