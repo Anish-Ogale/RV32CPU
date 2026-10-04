@@ -3,23 +3,25 @@
 Every RTL module has a dedicated `<module>_tb.v` file. All tests use
 Verilog-2001 and run with Icarus Verilog (`iverilog` and `vvp`).
 
-From the project directory, run all 18 testbenches:
+From the project directory, run all 23 Verilog testbenches plus nine host
+uploader checks on Linux:
 
-```powershell
-.\scripts\run_tests.ps1
+```bash
+bash scripts/run_tests.sh
 ```
 
-Run one module:
+Run one module (example):
 
-```powershell
-.\scripts\run_tests.ps1 -Module load_store_unit
+```bash
+iverilog -g2001 -Wall -s load_store_unit_tb -o /tmp/lsu_tb rtl/*.v tb/load_store_unit_tb.v
+vvp /tmp/lsu_tb
 ```
 
-The runner verifies that each RTL file has a corresponding testbench, compiles
-with `-g2001 -Wall`, and checks the simulation result. Any `FAIL:` message,
+The runner compiles each testbench with `-g2001 -Wall` and checks the
+simulation result. Any `FAIL:` message,
 missing `PASS:` message, compilation failure, or nonzero simulator exit causes
-the suite to fail. Simulator binaries are placed in a unique temporary folder,
-whose path is printed at the end. No SystemVerilog assertions are required.
+the suite to fail. Simulator binaries are placed in a unique temporary folder
+and removed on exit. No SystemVerilog assertions are required.
 
 ## Coverage
 
@@ -43,6 +45,12 @@ whose path is printed at the end. No SystemVerilog assertions are required.
 | `control_unit_tb.v` | State sequencing, waits, every ALU funct3/funct7 combination, load/store/branch/JALR/FENCE legality, selectors, faults, reset from each normal state |
 | `datapath_tb.v` | Datapath driven by the controller: arithmetic, loads/stores, branches, jumps, AUIPC/LUI, delayed memory and request stability |
 | `rv32i_core_tb.v` | Dedicated top-level program regression plus alignment/illegal/system faults, suppressed faulting writes, x0, reset during a stalled load |
+| `rv32i_fpga_top_tb.v` | Serial uploads/acknowledgements, malformed input, arithmetic/STATUS, restart from HALT, STOP/reset, RAM word/byte/halfword access, CPU UART backpressure, shipped example, stale trailing instructions cannot execute |
+| `uart_tb.v` | All 256 byte values in full duplex, TX framing/stop bits, false-start rejection, bad-stop error/recovery, reset idle, actual 100 MHz/115200-baud configuration |
+| `uart_diagnostic_top_tb.v` | Raw wire loopback independent of reset, decoded UART echo, diagnostic/reset/activity indicators |
+| `uart_program_loader_tb.v` | Exact STATUS/OK/ERR bytes including CR=0x0D and LF=0x0A, CR/LF/CRLF parsing, all 256 instruction addresses, overflow without address wraparound, reset/program retention |
+| `compiled_c_tb.v` | Upload actual RV32I GCC output, Fibonacci=55 and UART text, stack access, BSS clearing with dirty RAM, repeated RUN |
+| `upload_program_test.py` | Sparse readmemh/comments, input validation/bounds, acknowledged host upload ordering, upload without RUN, read-only status probe, empty-reply diagnostics, exact loopback payload and timeout/corruption handling |
 
 The unit tests use directed boundaries, bounded pseudorandom input sequences,
 and reference expectations. Integration tests initialize the GPRs they depend

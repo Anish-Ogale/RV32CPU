@@ -15,7 +15,8 @@ module load_store_unit (
     output reg         illegal_operation
 );
 
-    reg [31:0] shifted_read_data;
+    // Only byte/halfword loads use this temporary; LW uses the full word.
+    reg [15:0] shifted_read_data;
 
     always @(*) begin
         load_data           = 32'd0;

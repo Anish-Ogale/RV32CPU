@@ -188,6 +188,11 @@ For each instruction kind, a combinational `case` block picks the exact instruct
 | **WRITEBACK** | Verifies the next PC is valid and updates the PC. Writes `rd` for instructions that produce a result (loads, ALU reg/imm, etc.). Stores and branches do not write `rd`. |
 | **HALT** | Terminal error state. Outputs an error code identifying the fault and records the PC where it occurred. |
 
+
+## UART and WRAPPER modules
+
+The UART and top wrapper module exists to allow us to send data directly to the FPGA without having to reprogram the board for every new program
+
 ## Project Status
 
 Work in progress. This is primarily a learning project, with the design and documentation developed together.
